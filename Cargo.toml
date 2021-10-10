@@ -10,8 +10,8 @@ stub_arm = []
 stub_x86 = []
 
 [dependencies]
-gdbstub_arch = { path = "../gdbstub/gdbstub_arch/" }
-gdbstub = { path = "../gdbstub/" }
+gdbstub_arch = { git = "https://github.com/daniel5151/gdbstub.git", branch = "feature/optional-single-step" }
+gdbstub = { git = "https://github.com/daniel5151/gdbstub.git", branch = "feature/optional-single-step" }
 
 log = "0.4"
 pretty_env_logger = "0.4"
