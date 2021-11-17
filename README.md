@@ -1,5 +1,7 @@
 # GDB optional single-step bug repro
 
+This repo exhibits the behavior reported at https://sourceware.org/bugzilla/show_bug.cgi?id=28440
+
 On certain architectures, the GDB client doesn't seem to respect `vCont?` responses that don't include `;s;S`, and will unconditionally send single-step resume packets, even when the target has not explicitly acknowledges support.
 
 This repo includes two basic GDB remote targets, implemented using [`gdbstub`](https://github.com/daniel5151/gdbstub), a Rust library that implements the server-side of the GDB Remote Serial Protocol.
