@@ -1,10 +1,12 @@
 use std::net::{TcpListener, TcpStream};
 
 use gdbstub::arch::Arch;
-use gdbstub::gdbstub_run_blocking;
-use gdbstub::target::ext::base::singlethread::StopReason;
+use gdbstub::common::Signal;
+use gdbstub::conn::ConnectionExt;
+use gdbstub::stub::{
+    run_blocking, DisconnectReason, GdbStub, GdbStubError, SingleThreadStopReason,
+};
 use gdbstub::target::Target;
-use gdbstub::{ConnectionExt, DisconnectReason, GdbStub};
 
 mod emu;
 
@@ -33,23 +35,21 @@ enum EmuGdbEventLoop<U> {
 }
 
 #[allow(clippy::type_complexity)]
-impl<U> gdbstub::gdbstub_run_blocking::BlockingEventLoop for EmuGdbEventLoop<U>
+impl<U> run_blocking::BlockingEventLoop for EmuGdbEventLoop<U>
 where
     emu::Emu<U>: Target,
     <emu::Emu<U> as Target>::Arch: Arch<Usize = U>,
 {
     type Target = emu::Emu<U>;
     type Connection = Box<dyn ConnectionExt<Error = std::io::Error>>;
+    type StopReason = SingleThreadStopReason<<<Self::Target as Target>::Arch as Arch>::Usize>;
 
     fn wait_for_stop_reason(
         target: &mut emu::Emu<U>,
         conn: &mut Self::Connection,
     ) -> Result<
-        gdbstub_run_blocking::Event<<<Self::Target as Target>::Arch as Arch>::Usize>,
-        gdbstub_run_blocking::WaitForStopReasonError<
-            <Self::Target as Target>::Error,
-            std::io::Error,
-        >,
+        run_blocking::Event<Self::StopReason>,
+        run_blocking::WaitForStopReasonError<<Self::Target as Target>::Error, std::io::Error>,
     > {
         let poll_incoming_data = || {
             // gdbstub takes ownership of the underlying connection, so the `borrow_conn`
@@ -62,38 +62,29 @@ where
             emu::RunEvent::IncomingData => {
                 let byte = conn
                     .read()
-                    .map_err(gdbstub_run_blocking::WaitForStopReasonError::Connection)?;
-                Ok(gdbstub_run_blocking::Event::IncomingData(byte))
+                    .map_err(run_blocking::WaitForStopReasonError::Connection)?;
+                Ok(run_blocking::Event::IncomingData(byte))
             }
             emu::RunEvent::Event(event) => {
                 // translate emulator stop reason into GDB stop reason
                 let stop_reason = match event {
-                    emu::Event::DoneStep => StopReason::DoneStep,
-                    emu::Event::Halted => StopReason::Terminated(17), // SIGSTOP
+                    emu::Event::DoneStep => SingleThreadStopReason::DoneStep,
+                    emu::Event::Halted => SingleThreadStopReason::Terminated(Signal::SIGSTOP),
                 };
 
-                Ok(gdbstub_run_blocking::Event::TargetStopped(
-                    stop_reason.into(),
-                ))
+                Ok(run_blocking::Event::TargetStopped(stop_reason))
             }
         }
     }
 
     fn on_interrupt(
         _target: &mut emu::Emu<U>,
-    ) -> Result<
-        Option<
-            gdbstub::target::ext::base::multithread::ThreadStopReason<
-                <<Self::Target as Target>::Arch as Arch>::Usize,
-            >,
-        >,
-        <emu::Emu<U> as Target>::Error,
-    > {
+    ) -> Result<Option<Self::StopReason>, <emu::Emu<U> as Target>::Error> {
         // Because this emulator runs as part of the GDB stub loop, there isn't any
         // special action that needs to be taken to interrupt the underlying target. It
         // is implicitly paused whenever the stub isn't within the
         // `wait_for_stop_reason` callback.
-        Ok(Some(StopReason::Signal(5).into()))
+        Ok(Some(SingleThreadStopReason::Signal(Signal::SIGTRAP)))
     }
 }
 
@@ -123,7 +114,7 @@ fn main() -> DynResult<()> {
             }
             DisconnectReason::Kill => println!("GDB sent a kill command!"),
         },
-        Err(gdbstub::GdbStubError::TargetError(e)) => {
+        Err(GdbStubError::TargetError(e)) => {
             println!("target encountered a fatal error: {}", e)
         }
         Err(e) => {

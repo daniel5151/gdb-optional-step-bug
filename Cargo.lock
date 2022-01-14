@@ -55,8 +55,8 @@ dependencies = [
 
 [[package]]
 name = "gdbstub"
-version = "0.5.0"
-source = "git+https://github.com/daniel5151/gdbstub.git?branch=feature/optional-single-step#ba4b971f4ff562fe2a70d281f42503f251ed040a"
+version = "0.6.0"
+source = "git+https://github.com/daniel5151/gdbstub.git?branch=dev/0.6#2e8ecd0e130645cb2d550dcea18eab95b0a4a194"
 dependencies = [
  "bitflags",
  "cfg-if",
@@ -78,8 +78,8 @@ dependencies = [
 
 [[package]]
 name = "gdbstub_arch"
-version = "0.1.0"
-source = "git+https://github.com/daniel5151/gdbstub.git?branch=feature/optional-single-step#ba4b971f4ff562fe2a70d281f42503f251ed040a"
+version = "0.2.0"
+source = "git+https://github.com/daniel5151/gdbstub.git?branch=dev/0.6#2e8ecd0e130645cb2d550dcea18eab95b0a4a194"
 dependencies = [
  "gdbstub",
  "num-traits",

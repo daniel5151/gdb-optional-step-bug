@@ -1,5 +1,6 @@
+use gdbstub::common::Signal;
 use gdbstub::target;
-use gdbstub::target::ext::base::singlethread::SingleThreadOps;
+use gdbstub::target::ext::base::singlethread::{SingleThreadBase, SingleThreadResume};
 use gdbstub::target::{Target, TargetResult};
 
 use crate::emu::{Emu, ExecMode};
@@ -16,10 +17,14 @@ impl Target for Emu<u64> {
     fn use_implicit_sw_breakpoints(&self) -> bool {
         true
     }
+
+    fn use_optional_single_step(&self) -> bool {
+        true
+    }
 }
 
-impl SingleThreadOps for Emu<u64> {
-    fn resume(&mut self, signal: Option<u8>) -> Result<(), Self::Error> {
+impl SingleThreadResume for Emu<u64> {
+    fn resume(&mut self, signal: Option<Signal>) -> Result<(), Self::Error> {
         if signal.is_some() {
             return Err("no support for continuing with signal");
         }
@@ -29,6 +34,19 @@ impl SingleThreadOps for Emu<u64> {
         Ok(())
     }
 
+    #[inline(always)]
+    fn support_single_step(
+        &mut self,
+    ) -> Option<target::ext::base::singlethread::SingleThreadSingleStepOps<Self>> {
+        if self.support_single_step {
+            Some(self)
+        } else {
+            None
+        }
+    }
+}
+
+impl SingleThreadBase for Emu<u64> {
     fn read_registers(
         &mut self,
         regs: &mut gdbstub_arch::x86::reg::X86_64CoreRegs,
@@ -66,19 +84,15 @@ impl SingleThreadOps for Emu<u64> {
     }
 
     #[inline(always)]
-    fn support_single_step(
+    fn support_resume(
         &mut self,
-    ) -> Option<target::ext::base::singlethread::SingleThreadSingleStepOps<Self>> {
-        if self.support_single_step {
-            Some(self)
-        } else {
-            None
-        }
+    ) -> Option<target::ext::base::singlethread::SingleThreadResumeOps<'_, Self>> {
+        Some(self)
     }
 }
 
 impl target::ext::base::singlethread::SingleThreadSingleStep for Emu<u64> {
-    fn step(&mut self, signal: Option<u8>) -> Result<(), Self::Error> {
+    fn step(&mut self, signal: Option<Signal>) -> Result<(), Self::Error> {
         if signal.is_some() {
             return Err("no support for stepping with signal");
         }
