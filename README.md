@@ -8,10 +8,11 @@ This repo includes two basic GDB remote targets, implemented using [`gdbstub`](h
 
 These  are both incredibly barebones "dummy" remote targets, whereby they present a memory space entirely filled with NOP instructions, and use dummy values when reporting register values.
 
-Included are two different stub implementations:
+Included are three different stub implementations:
 
 1. An x86_64 stub
 2. An armv4t stub
+2. An mips stub
 
 ## Running
 
@@ -26,6 +27,10 @@ RUST_LOG=trace cargo run --features 'stub_arm' --
 RUST_LOG=trace cargo run --features 'stub_x86' -- --single-step
 # run the x86 stub, with trace logging enabled, *without* single-step support
 RUST_LOG=trace cargo run --features 'stub_x86' --
+# run the mips stub, with trace logging enabled + single-step support
+RUST_LOG=trace cargo run --features 'stub_mips' -- --single-step
+# run the mips stub, with trace logging enabled, *without* single-step support
+RUST_LOG=trace cargo run --features 'stub_mips' --
 ```
 
 The GDB client can connect to these targets over TCP loopback. i.e:
