@@ -14,10 +14,12 @@ impl Target for Emu<u32> {
         target::ext::base::BaseOps::SingleThread(self)
     }
 
+    #[inline(always)]
     fn use_implicit_sw_breakpoints(&self) -> bool {
         true
     }
 
+    #[inline(always)]
     fn use_optional_single_step(&self) -> bool {
         true
     }
