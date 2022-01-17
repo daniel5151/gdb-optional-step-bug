@@ -14,17 +14,19 @@ pub enum ExecMode {
 pub struct Emu<U> {
     _usize: core::marker::PhantomData<U>,
 
-    pub(crate) support_single_step: bool,
+    pub(crate) with_single_step: bool,
+    pub(crate) with_guard_rail: bool,
 
     pub(crate) exec_mode: ExecMode,
 }
 
 impl<U> Emu<U> {
-    pub fn new(support_single_step: bool) -> DynResult<Emu<U>> {
+    pub fn new(with_single_step: bool, with_guard_rail: bool) -> DynResult<Emu<U>> {
         Ok(Emu {
             _usize: core::marker::PhantomData,
 
-            support_single_step,
+            with_single_step,
+            with_guard_rail,
             exec_mode: ExecMode::Continue,
         })
     }

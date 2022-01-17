@@ -1,3 +1,4 @@
+use gdbstub::arch::{Arch, SingleStepGdbBehavior};
 use gdbstub::common::Signal;
 use gdbstub::target;
 use gdbstub::target::ext::base::singlethread::{SingleThreadBase, SingleThreadResume};
@@ -15,13 +16,17 @@ impl Target for Emu<u64> {
     }
 
     #[inline(always)]
-    fn use_implicit_sw_breakpoints(&self) -> bool {
+    fn guard_rail_implicit_sw_breakpoints(&self) -> bool {
         true
     }
 
     #[inline(always)]
-    fn use_optional_single_step(&self) -> bool {
-        true
+    fn guard_rail_single_step_gdb_behavior(&self) -> SingleStepGdbBehavior {
+        if !self.with_guard_rail {
+            SingleStepGdbBehavior::Optional
+        } else {
+            Self::Arch::single_step_gdb_behavior()
+        }
     }
 }
 
@@ -40,7 +45,7 @@ impl SingleThreadResume for Emu<u64> {
     fn support_single_step(
         &mut self,
     ) -> Option<target::ext::base::singlethread::SingleThreadSingleStepOps<Self>> {
-        if self.support_single_step {
+        if self.with_single_step {
             Some(self)
         } else {
             None

@@ -13,6 +13,8 @@ stub_mips = []
 [dependencies]
 gdbstub_arch = { git = "https://github.com/daniel5151/gdbstub.git", branch = "dev/0.6" }
 gdbstub = { git = "https://github.com/daniel5151/gdbstub.git", branch = "dev/0.6" }
+# gdbstub_arch = { path = "../gdbstub/gdbstub_arch" }
+# gdbstub = { path = "../gdbstub/" }
 
 log = "0.4"
 pretty_env_logger = "0.4"

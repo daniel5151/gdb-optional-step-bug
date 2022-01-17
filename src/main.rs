@@ -98,8 +98,9 @@ fn main() -> DynResult<()> {
     pretty_env_logger::init();
 
     let with_single_step = std::env::args().any(|arg| arg == "--single-step");
+    let with_guard_rail = std::env::args().any(|arg| arg == "--guard-rail");
 
-    let mut emu = emu::Emu::new(with_single_step)?;
+    let mut emu = emu::Emu::new(with_single_step, with_guard_rail)?;
 
     let connection: Box<dyn ConnectionExt<Error = std::io::Error>> = Box::new(wait_for_tcp(9001)?);
 
