@@ -5,8 +5,8 @@ use gdbstub::target::{Target, TargetResult};
 
 use crate::emu::{Emu, ExecMode};
 
-impl Target for Emu<u64> {
-    type Arch = gdbstub_arch::x86::X86_64_SSE;
+impl Target for Emu<u32> {
+    type Arch = gdbstub_arch::mips::Mips;
     type Error = &'static str;
 
     #[inline(always)]
@@ -25,7 +25,7 @@ impl Target for Emu<u64> {
     }
 }
 
-impl SingleThreadResume for Emu<u64> {
+impl SingleThreadResume for Emu<u32> {
     fn resume(&mut self, signal: Option<Signal>) -> Result<(), Self::Error> {
         if signal.is_some() {
             return Err("no support for continuing with signal");
@@ -48,39 +48,36 @@ impl SingleThreadResume for Emu<u64> {
     }
 }
 
-impl SingleThreadBase for Emu<u64> {
+impl SingleThreadBase for Emu<u32> {
     fn read_registers(
         &mut self,
-        regs: &mut gdbstub_arch::x86::reg::X86_64CoreRegs,
-        // regs: &mut gdbstub_arch::arm::reg::ArmCoreRegs,
+        regs: &mut gdbstub_arch::mips::reg::MipsCoreRegs<u32>,
     ) -> TargetResult<(), Self> {
         log::debug!("read_registers");
 
-        for (i, reg) in regs.regs.iter_mut().enumerate() {
-            *reg = i as u64;
+        for (i, reg) in regs.r.iter_mut().enumerate() {
+            *reg = i as u32;
         }
-
-        regs.rip = 0x5555_5555_0000_0000;
+        regs.pc = 0x5555_0000;
 
         Ok(())
     }
 
     fn write_registers(
         &mut self,
-        regs: &gdbstub_arch::x86::reg::X86_64CoreRegs,
-        // regs: &gdbstub_arch::arm::reg::ArmCoreRegs,
+        regs: &gdbstub_arch::mips::reg::MipsCoreRegs<u32>,
     ) -> TargetResult<(), Self> {
         log::debug!("write_registers: {:#x?}", regs);
         Ok(())
     }
 
-    fn read_addrs(&mut self, start_addr: u64, data: &mut [u8]) -> TargetResult<(), Self> {
+    fn read_addrs(&mut self, start_addr: u32, data: &mut [u8]) -> TargetResult<(), Self> {
         log::debug!("read_addrs: {:#x?},{}", start_addr, data.len());
-        data.fill(0x90); // nop
+        data.fill(0x00); // nop
         Ok(())
     }
 
-    fn write_addrs(&mut self, start_addr: u64, data: &[u8]) -> TargetResult<(), Self> {
+    fn write_addrs(&mut self, start_addr: u32, data: &[u8]) -> TargetResult<(), Self> {
         log::debug!("write_addrs: {:#x?},{:x?}", start_addr, data);
         Ok(())
     }
@@ -93,7 +90,7 @@ impl SingleThreadBase for Emu<u64> {
     }
 }
 
-impl target::ext::base::singlethread::SingleThreadSingleStep for Emu<u64> {
+impl target::ext::base::singlethread::SingleThreadSingleStep for Emu<u32> {
     fn step(&mut self, signal: Option<Signal>) -> Result<(), Self::Error> {
         if signal.is_some() {
             return Err("no support for stepping with signal");
