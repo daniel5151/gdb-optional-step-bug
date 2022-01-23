@@ -9,6 +9,7 @@ default = []
 stub_arm = []
 stub_x86 = []
 stub_mips = []
+stub_generic = []
 
 [dependencies]
 gdbstub_arch = { git = "https://github.com/daniel5151/gdbstub.git", branch = "dev/0.6" }

@@ -12,6 +12,8 @@ mod emu;
 
 #[cfg(feature = "stub_arm")]
 mod gdb_arm;
+#[cfg(feature = "stub_generic")]
+mod gdb_generic;
 #[cfg(feature = "stub_mips")]
 mod gdb_mips;
 #[cfg(feature = "stub_x86")]
@@ -19,7 +21,8 @@ mod gdb_x86;
 #[cfg(all(
     not(feature = "stub_arm"),
     not(feature = "stub_x86"),
-    not(feature = "stub_mips")
+    not(feature = "stub_mips"),
+    not(feature = "stub_generic")
 ))]
 compile_error!("must compile with either --feature 'stub_arm' or --feature 'stub_x86' or --feature 'stub_mips'");
 
