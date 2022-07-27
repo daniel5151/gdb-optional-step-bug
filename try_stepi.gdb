@@ -5,3 +5,6 @@ set debug remote 1
 #set debug infrun 1
 
 target remote :9001
+stepi
+set confirm off
+quit
