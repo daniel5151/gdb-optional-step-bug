@@ -96,6 +96,7 @@ See the `try_stepi.gdb` script for more commands.
 
 |        | `--single-step` (`vCont;c;C;s;S`) | (no support) (`vCont;c;C`) |
 |:------:|:---------------------------------:|:--------------------------:|
+|`aarch64`|      `vCont;s:p1.1;c:p1.-1`      |   `vCont;s:p1.1;c:p1.-1`   |
 |  `arm` |          `vCont;c:p1.-1`          |   `vCont;s:p1.1;c:p1.-1`   |
 | `mips` |          `vCont;c:p1.-1`          |       `vCont;c:p1.-1`      |
 |  `x86` |       `vCont;s:p1.1;c:p1.-1`      |   `vCont;s:p1.1;c:p1.-1`   |
@@ -105,6 +106,7 @@ See the `try_stepi.gdb` script for more commands.
   - This matches the spec.
 - The x86 example does _not_ work as expected.
   - If `--single-step` is not provided, the GDB stub reports `vCont;c;C`, and the GDB client nonetheless respond with `vCont;s:p1.1;c:p1.-1`! This results in a internal `gdbstub` error, and the example terminates.
+- The AArch64 example also assumes support for `vCont`.
 - The MIPS example is interesting.
   - Regardless if `--single-step` was provided, the GDB client will _never_ send a `vCont;s:pX.X` packet!
   - While this isn't strictly an "error", it is nonetheless weird that the GDB client doesn't attempt to use the target's "native" single step feature.

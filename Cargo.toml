@@ -6,6 +6,7 @@ edition = "2018"
 [features]
 default = []
 
+stub_aarch64 = []
 stub_arm = []
 stub_x86 = []
 stub_mips = []
