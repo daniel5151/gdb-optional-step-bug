@@ -10,18 +10,32 @@ use gdbstub::target::Target;
 
 mod emu;
 
+#[cfg(feature = "stub_aarch64")]
+mod gdb_aarch64;
 #[cfg(feature = "stub_arm")]
 mod gdb_arm;
 #[cfg(feature = "stub_mips")]
 mod gdb_mips;
 #[cfg(feature = "stub_x86")]
 mod gdb_x86;
-#[cfg(all(
-    not(feature = "stub_arm"),
-    not(feature = "stub_x86"),
-    not(feature = "stub_mips")
-))]
-compile_error!("must compile with either --feature 'stub_arm' or --feature 'stub_x86' or --feature 'stub_mips'");
+#[cfg(not(any(
+    feature = "stub_aarch64",
+    feature = "stub_arm",
+    feature = "stub_mips",
+    feature = "stub_x86",
+)))]
+#[rustfmt::skip]
+compile_error!(concat!(
+    "must compile with one --feature from [",
+    "stub_aarch64",
+    ", ",
+    "stub_arm",
+    ", ",
+    "stub_mips",
+    ", ",
+    "stub_x86",
+    "]"
+));
 
 pub type DynResult<T> = Result<T, Box<dyn std::error::Error>>;
 

@@ -8,7 +8,7 @@ function run_test {
 	${gdb} -x try_stepi.gdb -ex quit &>/dev/null
 	kill ${cargo} &>/dev/null
 }
-declare -A supported_archs=([arm]= [mips]= [x86]=)
+declare -A supported_archs=([aarch64]= [arm]= [mips]= [x86]=)
 
 export RUST_LOG="error,gdbstub::protocol=trace"
 
