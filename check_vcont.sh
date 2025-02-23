@@ -10,7 +10,7 @@ function run_test {
 }
 export RUST_LOG="error,gdbstub::protocol=trace"
 
-${gdb} --version | head -n 1
+${gdb} --version 2>/dev/null | head -1 | tr -d '\n' && echo -n " for " && ${gdb} --configuration 2>/dev/null | sed -n 's/.*--target=\([^ ]*\).*/\1/p'
 
 for arch in ${@:1}; do
 	echo " ===================== [${arch}] ====================="
