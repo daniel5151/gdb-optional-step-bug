@@ -1,4 +1,3 @@
-use gdbstub::arch::{Arch, SingleStepGdbBehavior};
 use gdbstub::common::Signal;
 use gdbstub::target;
 use gdbstub::target::ext::base::singlethread::{SingleThreadBase, SingleThreadResume};
@@ -18,15 +17,6 @@ impl Target for Emu<u32> {
     #[inline(always)]
     fn guard_rail_implicit_sw_breakpoints(&self) -> bool {
         true
-    }
-
-    #[inline(always)]
-    fn guard_rail_single_step_gdb_behavior(&self) -> SingleStepGdbBehavior {
-        if !self.with_guard_rail {
-            SingleStepGdbBehavior::Optional
-        } else {
-            Self::Arch::single_step_gdb_behavior()
-        }
     }
 }
 
@@ -76,10 +66,10 @@ impl SingleThreadBase for Emu<u32> {
         Ok(())
     }
 
-    fn read_addrs(&mut self, start_addr: u32, data: &mut [u8]) -> TargetResult<(), Self> {
+    fn read_addrs(&mut self, start_addr: u32, data: &mut [u8]) -> TargetResult<usize, Self> {
         log::debug!("read_addrs: {:#x?},{}", start_addr, data.len());
         data.fill(0x00); // nop
-        Ok(())
+        Ok(data.len())
     }
 
     fn write_addrs(&mut self, start_addr: u32, data: &[u8]) -> TargetResult<(), Self> {

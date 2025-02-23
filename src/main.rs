@@ -3,9 +3,7 @@ use std::net::{TcpListener, TcpStream};
 use gdbstub::arch::Arch;
 use gdbstub::common::Signal;
 use gdbstub::conn::ConnectionExt;
-use gdbstub::stub::{
-    run_blocking, DisconnectReason, GdbStub, GdbStubError, SingleThreadStopReason,
-};
+use gdbstub::stub::{run_blocking, DisconnectReason, GdbStub, SingleThreadStopReason};
 use gdbstub::target::Target;
 
 mod emu;
@@ -98,9 +96,8 @@ fn main() -> DynResult<()> {
     pretty_env_logger::init();
 
     let with_single_step = std::env::args().any(|arg| arg == "--single-step");
-    let with_guard_rail = std::env::args().any(|arg| arg == "--guard-rail");
 
-    let mut emu = emu::Emu::new(with_single_step, with_guard_rail)?;
+    let mut emu = emu::Emu::new(with_single_step)?;
 
     let connection: Box<dyn ConnectionExt<Error = std::io::Error>> = Box::new(wait_for_tcp(9001)?);
 
@@ -121,9 +118,6 @@ fn main() -> DynResult<()> {
             }
             DisconnectReason::Kill => println!("GDB sent a kill command!"),
         },
-        Err(GdbStubError::TargetError(e)) => {
-            println!("target encountered a fatal error: {}", e)
-        }
         Err(e) => {
             println!("gdbstub encountered a fatal error: {}", e)
         }
