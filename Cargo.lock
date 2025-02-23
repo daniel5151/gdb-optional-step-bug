@@ -58,22 +58,11 @@ dependencies = [
 
 [[package]]
 name = "gdbstub-step-bug"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "gdbstub",
- "gdbstub_arch",
  "log",
  "pretty_env_logger",
-]
-
-[[package]]
-name = "gdbstub_arch"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "328a9e9425db13770d0d11de6332a608854266e44c53d12776be7b4aa427e3de"
-dependencies = [
- "gdbstub",
- "num-traits",
 ]
 
 [[package]]
@@ -101,9 +90,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.169"
+version = "0.2.170"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5aba8db14291edd000dfcc4d620c7ebfb122c613afb886ca8803fa4e128a20a"
+checksum = "875b3680cb2f8f71bdcf9a30f38d48282f5d3c95cbf9b3fa57269bb5d5c06828"
 
 [[package]]
 name = "log"

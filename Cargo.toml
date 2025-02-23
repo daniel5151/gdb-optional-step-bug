@@ -1,17 +1,9 @@
 [package]
 name = "gdbstub-step-bug"
-version = "0.1.0"
-edition = "2018"
-
-[features]
-default = []
-
-stub_arm = []
-stub_x86 = []
-stub_mips = []
+version = "0.2.0"
+edition = "2024"
 
 [dependencies]
-gdbstub_arch = "0.3"
 gdbstub = "0.7"
 
 log = "0.4"

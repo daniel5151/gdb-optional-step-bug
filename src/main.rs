@@ -3,23 +3,11 @@ use std::net::{TcpListener, TcpStream};
 use gdbstub::arch::Arch;
 use gdbstub::common::Signal;
 use gdbstub::conn::ConnectionExt;
-use gdbstub::stub::{run_blocking, DisconnectReason, GdbStub, SingleThreadStopReason};
+use gdbstub::stub::{DisconnectReason, GdbStub, SingleThreadStopReason, run_blocking};
 use gdbstub::target::Target;
 
 mod emu;
-
-#[cfg(feature = "stub_arm")]
-mod gdb_arm;
-#[cfg(feature = "stub_mips")]
-mod gdb_mips;
-#[cfg(feature = "stub_x86")]
-mod gdb_x86;
-#[cfg(all(
-    not(feature = "stub_arm"),
-    not(feature = "stub_x86"),
-    not(feature = "stub_mips")
-))]
-compile_error!("must compile with either --feature 'stub_arm' or --feature 'stub_x86' or --feature 'stub_mips'");
+mod gdb;
 
 pub type DynResult<T> = Result<T, Box<dyn std::error::Error>>;
 

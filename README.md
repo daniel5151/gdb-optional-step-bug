@@ -18,14 +18,14 @@ Use the provided `check_vcont.sh` script to verify how `vCont?` is handled by
 your version of GDB (use `$GDB` to configure the path):
 
 ```
-$ GDB=gdb-multiarch ./check_vcont.sh arm mips x86
-GNU gdb (Debian 10.1-2) 10.1.90.20210103-git
- ===================== [arm] =====================
+$ GDB=gdb-multiarch ./check_vcont.sh armv4t mips i386:x86-64
+GNU gdb (GDB) 15.2
+ ===================== [armv4t] =====================
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont?#49
  TRACE gdbstub::protocol::response_writer > --> $vCont;c;C#26
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont;c:p1.-1#0f
 
-=================== [arm (SS)] ===================
+=================== [armv4t (SS)] ===================
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont?#49
  TRACE gdbstub::protocol::response_writer > --> $vCont;c;C;s;S#62
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont;s:p1.1;c:p1.-1#f7
@@ -40,13 +40,13 @@ GNU gdb (Debian 10.1-2) 10.1.90.20210103-git
  TRACE gdbstub::protocol::response_writer > --> $vCont;c;C;s;S#62
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont;c:p1.-1#0f
 
- ===================== [x86] =====================
+ ===================== [i386:x86-64] =====================
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont?#49
  TRACE gdbstub::protocol::response_writer > --> $vCont;c;C#26
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont;s:p1.1;c:p1.-1#f7
  ERROR gdbstub::stub::core_impl::resume   > GDB client sent resume action not reported by `vCont?`
 
-=================== [x86 (SS)] ===================
+=================== [i386:x86-64 (SS)] ===================
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont?#49
  TRACE gdbstub::protocol::response_writer > --> $vCont;c;C;s;S#62
  TRACE gdbstub::protocol::recv_packet     > <-- $vCont;s:p1.1;c:p1.-1#f7
@@ -54,12 +54,11 @@ GNU gdb (Debian 10.1-2) 10.1.90.20210103-git
 
 ### Running Manually
 
-Individual architectures can be tested through `cargo run` by using the `stub_X`
-feature where `X` is the supported archtecture out of:
+Individual architectures can be tested through `cargo run` by setting the GDB architecture:
 
-- `arm`: ARMv4T
+- `armv4t`: ARMv4T
 - `mips`: MIPS
-- `x86`: X86_64
+- `i386:x86-64`: X86_64
 
 By passing the `--single-step` flag, support can be added to the target. For
 example:
@@ -68,25 +67,16 @@ example:
 # enable trace logs for the `gdbstub` library, dumping send/recv'd packets to stderr
 export RUST_LOG=trace
 
-# run the armv4t stub, with trace logging enabled + single-step support
-cargo run --features 'stub_arm' -- --single-step
-# run the armv4t stub, with trace logging enabled, *without* single-step support
-cargo run --features 'stub_arm' --
-
-# run the x86 stub, with trace logging enabled + single-step support
-cargo run --features 'stub_x86' -- --single-step
-# run the x86 stub, with trace logging enabled, *without* single-step support
-cargo run --features 'stub_x86' --
-
-# run the mips stub, with trace logging enabled + single-step support
-cargo run --features 'stub_mips' -- --single-step
-# run the mips stub, with trace logging enabled, *without* single-step support
-cargo run --features 'stub_mips' --
+# run the stub with trace logging enabled + single-step support
+cargo run -- --single-step
+# run the stub with trace logging enabled, *without* single-step support
+cargo run --
 ```
 
 The GDB client can connect to these targets over TCP loopback. i.e:
 
 ```
+(gdb) set architecture armv4t
 (gdb) target remote :9001
 ```
 
@@ -96,9 +86,9 @@ See the `try_stepi.gdb` script for more commands.
 
 |        | `--single-step` (`vCont;c;C;s;S`) | (no support) (`vCont;c;C`) |
 |:------:|:---------------------------------:|:--------------------------:|
-|  `arm` |          `vCont;c:p1.-1`          |   `vCont;s:p1.1;c:p1.-1`   |
+| `armv4t` |          `vCont;c:p1.-1`          |   `vCont;s:p1.1;c:p1.-1`   |
 | `mips` |          `vCont;c:p1.-1`          |       `vCont;c:p1.-1`      |
-|  `x86` |       `vCont;s:p1.1;c:p1.-1`      |   `vCont;s:p1.1;c:p1.-1`   |
+| `i386:x86-64` |       `vCont;s:p1.1;c:p1.-1`      |   `vCont;s:p1.1;c:p1.-1`   |
 
 - The armv4t example works as expected.
   - If `--single-step` is not provided, the GDB stub reports `vCont;c;C`, and the GDB client responds with `vCont;c:p1.-1`. If `--single-step` is provided, the GDB stub reports `vCont;c;C;s;S`, and the GDB client respond with `vCont;s:p1.1;c:p1.-1`.
