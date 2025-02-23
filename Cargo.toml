@@ -1,21 +1,10 @@
 [package]
 name = "gdbstub-step-bug"
-version = "0.1.0"
-edition = "2018"
-
-[features]
-default = []
-
-stub_arm = []
-stub_x86 = []
-stub_mips = []
+version = "0.2.0"
+edition = "2024"
 
 [dependencies]
-gdbstub = "0.6"
-gdbstub_arch = "0.2"
-log = "0.4"
-pretty_env_logger = "0.4"
+gdbstub = "0.7"
 
-[patch.crates-io]
-# gdbstub = { path = "../gdbstub/" }
-# gdbstub_arch = { path = "../gdbstub/gdbstub_arch" }
+log = "0.4"
+pretty_env_logger = "0.5"
